@@ -1,0 +1,51 @@
+PLANT DISEASE DETECTION - START HERE
+====================================
+
+1.  Extract this whole folder somewhere, for example the Desktop.
+    Do not run it from inside the ZIP file.
+
+2.  Double-click:  RUN.bat
+
+3.  Wait. The first run takes 5 to 10 minutes and needs internet:
+      - it installs Python 3.12 if the laptop does not have it
+      - it downloads about 600 MB of libraries
+      - it downloads the 92 MB trained model
+
+    A black window shows progress. Leave it open.
+    Later runs take about 15 seconds and need no internet.
+
+4.  Your browser opens at  http://localhost:8501
+    Drag a leaf photo into the page.
+
+
+IF WINDOWS WARNS YOU
+--------------------
+"Windows protected your PC"  ->  click "More info"  ->  "Run anyway".
+
+
+IF SOMETHING FAILS
+------------------
+The black window stays open and prints what to do, in plain words.
+Nothing is damaged by running it again - every step is skipped once done.
+
+
+IF PYTHON CANNOT BE INSTALLED AUTOMATICALLY
+-------------------------------------------
+   1. Open https://www.python.org/downloads/release/python-3129/
+   2. Download "Windows installer (64-bit)"
+   3. Run it and TICK "Add python.exe to PATH"
+   4. Close the window, double-click RUN.bat again.
+
+
+WHY PYTHON 3.12 AND NOT 3.13 / 3.14
+-----------------------------------
+TensorFlow 2.20 has no packages for 3.13 or 3.14, so the libraries
+cannot install there. Python 3.12 installs alongside - nothing else
+on the laptop is affected.
+
+
+MANUAL COMMANDS (only if you want them)
+---------------------------------------
+    .\.venv\Scripts\python.exe scripts\check_setup.py
+    .\.venv\Scripts\python.exe -m streamlit run app.py
+    .\.venv\Scripts\python.exe predict_cli.py leaf.jpg --gradcam out\cam.png

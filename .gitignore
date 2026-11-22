@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Model artefacts — too big for git. Keep them on a USB stick instead.
+models/*.keras
+models/*.h5
+models/*.npz
+reports/*.png
+reports/*.csv
+reports/*.keras
+reports/_phase*
+
+# Dataset — never commit 2 GB of JPGs
+data/
+samples/*.jpg
+samples/*.png
+
+# Local test scratch
+tests/_scratch/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editor folders
+.idea/
+.vscode/
+*.iml

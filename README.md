@@ -52,6 +52,10 @@ Dense(38, softmax)      →  probabilities          534,310 params
 
 Every later run: double-click `RUN.bat` again — about 15 seconds, no internet.
 
+> On the very first launch Streamlit may print **"Welcome to Streamlit!"** and ask
+> for an email address. Press **Enter** on the empty line — it is Streamlit's
+> newsletter prompt, not part of this project.
+
 If Windows says *"Windows protected your PC"* → **More info → Run anyway**.
 
 If the launcher stops, it prints the exact fix in the window. Nothing is damaged
@@ -362,5 +366,3 @@ the marking scheme gives **zero** for a working demo you cannot explain.
   weights, and we rebuilt the pipeline around them because the original script
   depended on a cloud API, OpenCV and a fragile weight-loading hack" is a
   strong, honest answer.
-#   p l a n t _ d i s e a s e _ d e t e c t i o n  
- 

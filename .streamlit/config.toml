@@ -1,0 +1,14 @@
+[theme]
+base = "light"
+primaryColor = "#17694d"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f7f6"
+textColor = "#111827"
+
+[server]
+# Visitors often upload 5-10 MB phone photos.
+maxUploadSize = 25
+headless = false
+
+[browser]
+gatherUsageStats = false

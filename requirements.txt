@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------------------
+# Plant Disease Detection — Python dependencies
+# Tested combination: Python 3.11 / 3.12 + TensorFlow 2.20 (Keras 3)
+#
+# IMPORTANT (Windows): TensorFlow does NOT provide wheels for Python 3.13/3.14
+# yet in every release. Use Python 3.11 or 3.12. See README.md -> "Python version".
+# ---------------------------------------------------------------------------
+
+tensorflow==2.20.0
+numpy>=1.26,<2.4
+pillow>=10.0
+streamlit>=1.40
+matplotlib>=3.8
+scikit-learn>=1.3
+seaborn>=0.13
+pandas>=2.0
+
+# Optional: only needed if you enable the LLM "extra advice" toggle in the app.
+huggingface-hub>=0.30
+python-dotenv>=1.0
+
+# NOTE: OpenCV is intentionally NOT required. Grad-CAM colour mapping is done
+# with matplotlib + Pillow, which keeps the install ~120 MB smaller and removes
+# the most common source of "DLL load failed" errors on Windows.
