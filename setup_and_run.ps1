@@ -369,8 +369,24 @@ Write-Host "  Upload a leaf photo to get a diagnosis." -ForegroundColor White
 Write-Host "  Keep this black window open while you demo." -ForegroundColor White
 Write-Host "  Press Ctrl + C here to stop the app." -ForegroundColor White
 Write-Host ""
+Write-Host ""
 
-& $VENV_PY -m streamlit run app.py --server.port $port
+# Streamlit asks for an email address the first time it runs interactively and
+# then WAITS for input. On a cloud host that blocks startup forever (the server
+# never binds and the host reports a failed health check). Writing the
+# credentials file is exactly what pressing Enter does, and it works on every
+# Streamlit version - unlike the config key, which newer versions only added.
+$credDir = Join-Path $env:USERPROFILE ".streamlit"
+$credFile = Join-Path $credDir "credentials.toml"
+if (-not (Test-Path $credFile)) {
+    New-Item -ItemType Directory -Force -Path $credDir | Out-Null
+    Set-Content -LiteralPath $credFile -Value "[general]`r`nemail = `"`"" -Encoding ASCII
+    Info "created $credFile (so the email prompt never appears)"
+}
+
+$env:STREAMLIT_BROWSER_GATHER_USAGE_STATS = "false"
+
+& $VENV_PY -m streamlit run app.py --server.port $port --server.headless false --browser.gatherUsageStats false
 
 Write-Host ""
 Say "The app has stopped. You can close this window." "Gray"

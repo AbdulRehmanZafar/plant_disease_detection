@@ -8,7 +8,20 @@ textColor = "#111827"
 [server]
 # Visitors often upload 5-10 MB phone photos.
 maxUploadSize = 25
-headless = false
+
+# IMPORTANT - do not set `headless` here.
+# Streamlit auto-detects it: true on a server with no display (Streamlit Cloud,
+# Docker, CI), false on a Windows desktop. Forcing `headless = false` makes a
+# cloud host believe a human is sitting at a terminal, so Streamlit asks for an
+# email address at startup and waits for input that never arrives -> the server
+# never binds and the host reports a failed health check.
+# The local launcher (RUN.bat / setup_and_run.ps1) passes --server.headless false
+# explicitly when it wants the browser to open by itself.
+
+# Never prompt for an email address (Streamlit >= 1.67). Older versions ignore
+# this key; the launcher also writes ~/.streamlit/credentials.toml, which works
+# on every version.
+showEmailPrompt = false
 
 [browser]
 gatherUsageStats = false
