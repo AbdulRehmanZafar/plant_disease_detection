@@ -29,6 +29,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.advice import format_advice, human_readable  # noqa: E402
 from src.config import load_class_names  # noqa: E402
 from src.preprocessing import prepare_upload  # noqa: E402
+from src.quality import analyse as assess_image  # noqa: E402
 
 
 def classify(model, image_path: Path, classes: list[str], topk: int):
@@ -72,11 +73,17 @@ def main() -> int:
         display_img, batch, probs, order = classify(model, path, classes, args.topk)
         best = classes[int(order[0])]
         conf = float(probs[int(order[0])])
+        quality = assess_image(display_img)
 
         print("=" * 78)
         print(f"{path.name}")
         print("=" * 78)
         print(f"  -> {human_readable(best)}   ({conf * 100:.2f}%)")
+
+        if quality["status"] != "leaf":
+            print(f"  !! LEAF CHECK: {quality['reason']}")
+            print("     The classifier is closed-set and must answer anyway, so treat")
+            print("     this prediction with caution.")
         for rank, idx in enumerate(order, start=1):
             bar = "#" * int(round(float(probs[idx]) * 40))
             print(f"   {rank}. {human_readable(classes[int(idx)]):<52} "
@@ -99,6 +106,7 @@ def main() -> int:
                 "image": str(path),
                 "prediction": best,
                 "confidence": round(conf, 4),
+                "leaf_check": quality,
                 "top_k": [
                     {"class": classes[int(i)], "probability": round(float(probs[int(i)]), 4)}
                     for i in order

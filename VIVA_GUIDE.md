@@ -458,6 +458,50 @@ OpenCV, which removes a heavy dependency and its Windows DLL issues.
 
 ---
 
+### G2. The leaf guard (out-of-distribution handling)
+
+**Q: I uploaded a screenshot of a web browser and your model answered
+"Blueberry — Healthy, 99.6%". Why?**
+Because it is a **closed-set** classifier. Its final layer is
+`Dense(38, softmax)`, so the 38 outputs always sum to 1 — the model is
+*structurally unable* to say "none of these". An image of a desk, a face or a
+screenshot is forced onto the closest-looking leaf class. The 99.6% is not
+evidence of correctness: softmax probabilities are **poorly calibrated** on
+inputs far from the training distribution, which is why this failure mode is
+called OOD overconfidence. The Grad-CAM from that upload was smeared across the
+whole browser window — the model was not looking at a lesion, because there was
+none.
+
+**Q: What did you do about it?**
+Added a guard in `src/quality.py` that runs **before** the prediction is
+trusted. It measures the fraction of *plant-coloured* pixels: hue bands for
+green (58–165°), yellow-green (36–58°) and necrotic brown (7–36°), each with a
+saturation and brightness floor so grey, white and skin do not count. The
+weighted fraction gives a 0–1 plant-likeness score:
+
+| Score | App behaviour |
+|---|---|
+| ≥ 15% | normal diagnosis |
+| 5–15% | caution banner |
+| < 5% | **"This does not look like a leaf"** + "the result below is not meaningful" |
+
+**Q: Why a colour heuristic instead of a 39th "unknown" class?**
+A 39th class needs training negatives — images of everything that is *not* a
+leaf — and a retrain, which we do not have the data for. The colour statistic
+needs no training data, runs in about 5 ms, and can be explained in one
+sentence. It is honest about being a *safety net*, not a gate: a close-up of a
+wooden desk could pass, and a very small leaf in a large frame could be
+flagged. Its job is to stop the most embarrassing failure — a confident
+diagnosis of something that is not a plant.
+
+**Q: How is it tested?**
+`tests/selftest.py` includes three guard tests with synthetic images: green,
+yellowing and brown leaves must be accepted; a browser screenshot, a blank
+page, a grey card, a blue sky and a skin-tone image must be rejected. All 16
+tests run in about a second without TensorFlow.
+
+---
+
 ### H. Application and deployment
 
 **Q: What does the app do, step by step?**

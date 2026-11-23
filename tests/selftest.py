@@ -185,7 +185,69 @@ def _npz_shapes():
 
 
 # ---------------------------------------------------------------------------
-# 4. Advice rendering
+# 4. Leaf guard — stops the closed-set model from "diagnosing" a screenshot
+# ---------------------------------------------------------------------------
+def _leaf_image(leaf=(60, 140, 50), bg=(235, 235, 235), size=(400, 400), frac=0.55):
+    from PIL import ImageDraw
+
+    img = Image.new("RGB", size, bg)
+    draw = ImageDraw.Draw(img)
+    w, h = size
+    m = int(min(w, h) * frac / 2)
+    draw.ellipse([w / 2 - m, h / 2 - m, w / 2 + m, h / 2 + m], fill=leaf)
+    return img
+
+
+@test("leaf guard: real leaves are accepted")
+def _guard_accepts():
+    from src.quality import analyse
+
+    cases = {
+        "healthy green": _leaf_image(),
+        "yellowing": _leaf_image(leaf=(190, 175, 60)),
+        "necrotic brown": _leaf_image(leaf=(120, 85, 45)),
+        "dark green on white": _leaf_image(bg=(255, 255, 255), leaf=(35, 95, 40)),
+    }
+    for name, img in cases.items():
+        result = analyse(img)
+        assert result["status"] == "leaf", f"{name} -> {result['status']} ({result['score']})"
+
+
+@test("leaf guard: screenshots and non-leaf images are rejected")
+def _guard_rejects():
+    from src.quality import analyse
+
+    screenshot = Image.new("RGB", (900, 700), (250, 250, 250))
+    from PIL import ImageDraw
+
+    draw = ImageDraw.Draw(screenshot)
+    draw.rectangle([60, 90, 600, 190], fill=(30, 60, 140))      # blue banner
+    draw.rectangle([700, 100, 860, 600], fill=(120, 80, 200))   # purple panel
+
+    cases = {
+        "browser screenshot": screenshot,
+        "blank page": Image.new("RGB", (600, 400), (255, 255, 255)),
+        "grey card": Image.new("RGB", (400, 400), (128, 128, 128)),
+        "blue sky": Image.new("RGB", (400, 300), (110, 160, 225)),
+        "skin tone": Image.new("RGB", (400, 400), (220, 175, 140)),
+    }
+    for name, img in cases.items():
+        result = analyse(img)
+        assert result["status"] == "not_leaf", f"{name} -> {result['status']} ({result['score']})"
+
+
+@test("leaf guard: report has the fields the app uses")
+def _guard_fields():
+    from src.quality import analyse
+
+    result = analyse(_leaf_image())
+    for key in ("status", "score", "reason", "green", "yellow", "brown"):
+        assert key in result, f"missing {key}"
+    assert 0.0 <= result["score"] <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# 5. Advice rendering
 # ---------------------------------------------------------------------------
 @test("format_advice renders every class")
 def _format_all():
